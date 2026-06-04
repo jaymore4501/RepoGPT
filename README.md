@@ -1,8 +1,6 @@
-<p align="center">
-  <img src="public/Logo.png" alt="RepoGPT Logo" width="120" height="120" style="border-radius:16px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);"/>
-</p>
-
-<h1 align="center">RepoGPT</h1>
+<h1 align="center">
+  <img src="public/Logo.png" alt="RepoGPT Logo" width="30" style="vertical-align: middle; margin-right: 8px; border-radius: 6px;"/>RepoGPT
+</h1>
 
 <p align="center">
   <strong>AI-Powered Repository Intelligence & Interactive Codebase Visualization Platform.</strong>
@@ -20,6 +18,8 @@
 ---
 
 ## 📖 Introduction
+
+![RepoGPT Introduction](./public/RepoGPT%20Introduction.png)
 
 RepoGPT is a premium developer-onboarding and codebase intelligence platform designed to eliminate code discovery friction. By pasting a public GitHub repository URL, the system clones, traverses, and parses the codebase locally using customized AST-signature extractors to generate comprehensive interactive charts, semantic document libraries, and context-aware chat interfaces.
 
