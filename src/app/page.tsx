@@ -20,7 +20,9 @@ import {
   ArrowUpRight,
   Compass,
   ChevronDown,
-  Rocket
+  Rocket,
+  AlertCircle,
+  X
 } from 'lucide-react';
 import MagicRings from '@/components/MagicRings';
 import SplitText from '@/components/SplitText';
@@ -209,6 +211,7 @@ export default function LandingPage() {
   const [showExploreRepos, setShowExploreRepos] = useState(false);
   const [clientId, setClientId] = useState('');
   const [scansToday, setScansToday] = useState(0);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   useEffect(() => {
     // Generate or load unique client ID
@@ -244,8 +247,8 @@ export default function LandingPage() {
     
     // Enforce daily rate limit check client-side
     if (scansToday >= 5) {
-      setStatus('error');
       setErrorMsg('Daily scan limit reached (5/5). You cannot analyze any more repositories today. Please try again tomorrow!');
+      setShowErrorModal(true);
       return;
     }
 
@@ -315,8 +318,9 @@ export default function LandingPage() {
 
     } catch (err: any) {
       clearInterval(interval);
-      setStatus('error');
+      setStatus('idle');
       setErrorMsg(err.message || 'An error occurred during repository ingestion.');
+      setShowErrorModal(true);
     }
   };
 
@@ -703,6 +707,58 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      {/* Error Modal Popup */}
+      {showErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => {
+              setShowErrorModal(false);
+              setStatus('idle');
+            }}
+          />
+          
+          {/* Modal Container */}
+          <div className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-slate-950 border border-rose-500/20 p-6 text-left align-middle shadow-2xl transition-all duration-300 scale-100 flex flex-col gap-4 text-slate-100 animate-fade-in">
+            <button
+              onClick={() => {
+                setShowErrorModal(false);
+                setStatus('idle');
+              }}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div className="space-y-1.5 flex-1">
+                <h3 className="text-lg font-bold text-slate-100 font-sans">
+                  {errorMsg.toLowerCase().includes('limit') ? 'Daily Limit Reached' : 'Analysis Failed'}
+                </h3>
+                <p className="text-sm text-slate-400 leading-relaxed font-sans">
+                  {errorMsg}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setStatus('idle');
+                }}
+                className="px-5 py-2.5 text-xs font-semibold rounded-lg bg-rose-950/30 border border-rose-800/40 hover:border-rose-700/60 text-rose-300 hover:text-rose-200 transition-all cursor-pointer active:scale-95 shadow-md hover:bg-rose-950/50"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
