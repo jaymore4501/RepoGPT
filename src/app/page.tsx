@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Code,
@@ -207,6 +207,32 @@ export default function LandingPage() {
   const [selectedGoal, setSelectedGoal] = useState('all');
   const [isGoalDropdownOpen, setIsGoalDropdownOpen] = useState(false);
   const [showExploreRepos, setShowExploreRepos] = useState(false);
+  const [clientId, setClientId] = useState('');
+  const [scansToday, setScansToday] = useState(0);
+
+  useEffect(() => {
+    // Generate or load unique client ID
+    let cId = localStorage.getItem('repogpt_client_id');
+    if (!cId) {
+      cId = 'c_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      localStorage.setItem('repogpt_client_id', cId);
+    }
+    setClientId(cId);
+
+    // Fetch initial scan count
+    const fetchScanCount = async () => {
+      try {
+        const res = await fetch(`/api/analyze?clientId=${cId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setScansToday(data.count || 0);
+        }
+      } catch (err) {
+        console.error('Failed to fetch scan count:', err);
+      }
+    };
+    fetchScanCount();
+  }, []);
 
   const validateUrl = (url: string) => {
     const githubRegex = /^https:\/\/github\.com\/[\w\-._]+\/[\w\-._]+(?:\.git)?\/?$/;
@@ -242,7 +268,7 @@ export default function LandingPage() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToAnalyze })
+        body: JSON.stringify({ url: urlToAnalyze, clientId })
       });
 
       const data = await response.json();
@@ -250,6 +276,13 @@ export default function LandingPage() {
 
       if (!response.ok) {
         throw new Error(data.error || 'Repository analysis failed');
+      }
+
+      // Update scan count from server
+      const countRes = await fetch(`/api/analyze?clientId=${clientId}`);
+      if (countRes.ok) {
+        const countData = await countRes.json();
+        setScansToday(countData.count || 0);
       }
 
       // Success
@@ -356,6 +389,14 @@ export default function LandingPage() {
                       Analyze <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
+                </div>
+
+                {/* Limit & Info Bar */}
+                <div className="flex flex-col sm:flex-row items-center justify-between px-1 gap-2 text-[11px] text-slate-500">
+                  <span>Enter any public GitHub repository to index its contents.</span>
+                  <span className="font-semibold text-slate-400 bg-slate-900/60 border border-slate-800/80 px-2 py-0.5 rounded flex items-center gap-1.5">
+                    Daily Scans Remaining: <span className={scansToday >= 5 ? 'text-rose-400 font-bold animate-pulse' : 'text-cyan-400 font-bold'}>{Math.max(0, 5 - scansToday)}/5</span>
+                  </span>
                 </div>
 
                 {/* Error Banner */}

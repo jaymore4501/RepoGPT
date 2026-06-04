@@ -20,7 +20,8 @@ function execPromise(command: string, cwd: string): Promise<{ stdout: string; st
 
 export async function POST(req: NextRequest) {
   try {
-    const { url } = await req.json();
+    const { url, clientId } = await req.json();
+    const clientIdentifier = clientId || 'guest-global';
 
     if (!url) {
       return NextResponse.json({ error: 'GitHub repository URL is required' }, { status: 400 });
@@ -48,6 +49,14 @@ export async function POST(req: NextRequest) {
         repoId,
         metadata: existingRepo
       });
+    }
+
+    // Check rate limit (Max 5 scans per 24 hours per client)
+    const scanCount = Storage.getRecentScanCount(clientIdentifier);
+    if (scanCount >= 5) {
+      return NextResponse.json({
+        error: 'Daily scan limit reached. You can only scan up to 5 new repositories per 24 hours. Please try again tomorrow!'
+      }, { status: 429 });
     }
 
     const tempDir = process.env.TEMP_DIR || (process.env.RENDER === 'true' ? '/tmp/temp_repos' : path.join(process.cwd(), 'temp_repos'));
@@ -84,6 +93,9 @@ export async function POST(req: NextRequest) {
       Storage.saveRepository(metadata);
       Storage.saveIndex(repoId, index);
 
+      // Record successful new scan
+      Storage.recordScan(clientIdentifier, repoId);
+
       return NextResponse.json({ 
         success: true, 
         repoId, 
@@ -103,6 +115,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });
   } catch (error: any) {
     console.error('Error in analyze route:', error);
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const clientId = searchParams.get('clientId');
+    if (!clientId) {
+      return NextResponse.json({ error: 'Client ID is required' }, { status: 400 });
+    }
+    const count = Storage.getRecentScanCount(clientId);
+    return NextResponse.json({ count, limit: 5 });
+  } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

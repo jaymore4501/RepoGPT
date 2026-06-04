@@ -64,10 +64,17 @@ export interface ChatSession {
   messages: ChatMessage[];
 }
 
+export interface ScanRecord {
+  clientId: string;
+  repoId: string;
+  timestamp: string;
+}
+
 const DATA_DIR = process.env.DATA_DIR || (process.env.RENDER === 'true' ? '/tmp/data' : path.join(process.cwd(), 'data'));
 const INDEX_DIR = path.join(DATA_DIR, 'indexes');
 const CHAT_DIR = path.join(DATA_DIR, 'chats');
 const REPOS_FILE = path.join(DATA_DIR, 'repositories.json');
+const SCANS_FILE = path.join(DATA_DIR, 'scans.json');
 
 // Memory Cache Layer for instant lookups
 const indexCache = new Map<string, RepositoryIndex>();
@@ -88,6 +95,9 @@ function ensureDirs() {
   }
   if (!fs.existsSync(REPOS_FILE)) {
     fs.writeFileSync(REPOS_FILE, JSON.stringify([]));
+  }
+  if (!fs.existsSync(SCANS_FILE)) {
+    fs.writeFileSync(SCANS_FILE, JSON.stringify([]));
   }
 }
 
@@ -238,5 +248,36 @@ export const Storage = {
     chatCache.set(repoId, emptySession);
     const filePath = path.join(CHAT_DIR, `${repoId}.json`);
     fs.writeFileSync(filePath, JSON.stringify(emptySession, null, 2));
+  },
+
+  // Get all scans
+  getScans(): ScanRecord[] {
+    ensureDirs();
+    try {
+      const data = fs.readFileSync(SCANS_FILE, 'utf-8');
+      return JSON.parse(data) || [];
+    } catch (e) {
+      console.error('Error reading scans file:', e);
+      return [];
+    }
+  },
+
+  // Record a scan
+  recordScan(clientId: string, repoId: string) {
+    ensureDirs();
+    const scans = this.getScans();
+    scans.push({
+      clientId,
+      repoId,
+      timestamp: new Date().toISOString()
+    });
+    fs.writeFileSync(SCANS_FILE, JSON.stringify(scans, null, 2));
+  },
+
+  // Check scans in last 24 hours
+  getRecentScanCount(clientId: string): number {
+    const scans = this.getScans();
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    return scans.filter(s => s.clientId === clientId && new Date(s.timestamp).getTime() > oneDayAgo).length;
   }
 };
