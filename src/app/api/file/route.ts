@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Repository not found' }, { status: 404 });
     }
 
-    const tempDir = path.join(process.cwd(), 'temp_repos');
+    const tempDir = process.env.TEMP_DIR || (process.env.RENDER === 'true' ? '/tmp/temp_repos' : path.join(process.cwd(), 'temp_repos'));
     const repoDir = path.resolve(tempDir, repoId);
     const targetFile = path.resolve(repoDir, filePath);
 

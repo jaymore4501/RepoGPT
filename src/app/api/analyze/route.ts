@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const tempDir = path.join(process.cwd(), 'temp_repos');
+    const tempDir = process.env.TEMP_DIR || (process.env.RENDER === 'true' ? '/tmp/temp_repos' : path.join(process.cwd(), 'temp_repos'));
     const repoDir = path.join(tempDir, repoId);
 
     // Create temp_repos directory if it doesn't exist
