@@ -301,7 +301,7 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
             <a href="#ollama" className="hover:text-cyan-400 transition-colors">Ollama Guide</a>
             <a 
-              href="https://github.com" 
+              href="https://github.com/jaymore4501/RepoGPT" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="flex items-center gap-1.5 hover:text-slate-200 transition-colors"
@@ -588,25 +588,63 @@ export default function LandingPage() {
 
       {/* Ollama Guide Section */}
       <section id="ollama" className="max-w-4xl mx-auto w-full px-6 py-16 border-t border-slate-900 relative z-20">
-        <div className="glass-panel rounded-2xl p-8 border border-violet-500/15 flex flex-col md:flex-row gap-8 items-center shadow-xl">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-950/50 border border-indigo-500/30 flex items-center justify-center shrink-0 shadow-lg">
+        <div className="glass-panel rounded-2xl p-8 border border-violet-500/15 flex flex-col md:flex-row gap-8 items-start shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-950/50 border border-indigo-500/30 flex items-center justify-center shrink-0 shadow-lg mt-1">
             <Terminal className="w-8 h-8 text-indigo-400" />
           </div>
-          <div className="space-y-4 flex-1">
-            <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-              Unlock Chat Conversational Generative AI with Ollama
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              RepoGPT works natively and runs a local semantic search agent immediately out-of-the-box. To unlock fully conversational, generative chat responses, spin up Ollama locally on your system.
-            </p>
-            <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 space-y-2">
-              <div className="flex items-center gap-2 text-indigo-400 border-b border-slate-800/80 pb-2 mb-2 font-sans font-semibold">
+          <div className="space-y-6 flex-1">
+            <div>
+              <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+                Unlock Conversational AI with Ollama
+              </h3>
+              <p className="text-sm text-slate-400 leading-relaxed mt-2">
+                RepoGPT works natively out-of-the-box using local keyword indexing. To unlock fully conversational codebase Q&A, you can connect to local Large Language Models (LLMs) running on your own CPU or GPU.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-left">
+              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
+                <span className="font-bold text-slate-200">🔒 100% Local and Secure</span>
+                <p className="text-slate-400 leading-relaxed">
+                  Your code never leaves your machine. Ollama runs the models offline, ensuring zero external data leakage.
+                </p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
+                <span className="font-bold text-slate-200">🚀 Zero Cost & API Limits</span>
+                <p className="text-slate-400 leading-relaxed">
+                  Run complex code queries without paying for API keys, subscription tokens, or cloud service limits.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-slate-950 border border-slate-800 rounded-lg p-5 font-mono text-xs text-slate-300 space-y-4 text-left">
+              <div className="flex items-center gap-2 text-indigo-400 border-b border-slate-800/80 pb-2 font-sans font-semibold">
                 <Info className="w-4 h-4" /> Setup Instructions
               </div>
-              <div># 1. Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">ollama.com</a></div>
-              <div># 2. Run the code model of your choice:</div>
-              <div className="text-cyan-300 font-semibold">ollama run deepseek-coder</div>
-              <div># 3. Reload RepoGPT. The platform automatically hooks into Ollama!</div>
+              
+              <div className="space-y-1.5">
+                <div className="font-semibold text-slate-200">1. Download & Install Ollama</div>
+                <div className="text-slate-400 pl-4">
+                  Visit <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">ollama.com</a> to download and install the client for Windows, macOS, or Linux.
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="font-semibold text-slate-200">2. Launch the local LLM</div>
+                <div className="text-slate-400 pl-4">
+                  Open your terminal and run a model optimized for coding tasks (e.g. DeepSeek Coder 6.7B or Llama 3):
+                </div>
+                <div className="bg-slate-900 px-3 py-2.5 rounded text-cyan-300 font-semibold border border-slate-800/80 mt-1 ml-4 select-all">
+                  ollama run deepseek-coder
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="font-semibold text-slate-200">3. Connect automatically</div>
+                <div className="text-slate-400 pl-4">
+                  RepoGPT automatically detects the active connection at <code className="text-violet-300 font-semibold bg-violet-950/20 px-1 py-0.5 rounded">http://localhost:11434</code>. You will see the <span className="text-emerald-400 font-bold">Ollama Active</span> badge in the Semantic Code Chat tab!
+                </div>
+              </div>
             </div>
           </div>
         </div>
