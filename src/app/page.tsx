@@ -241,6 +241,14 @@ export default function LandingPage() {
 
   const startAnalysis = async (urlToAnalyze: string) => {
     if (!urlToAnalyze) return;
+    
+    // Enforce daily rate limit check client-side
+    if (scansToday >= 5) {
+      setStatus('error');
+      setErrorMsg('Daily scan limit reached (5/5). You cannot analyze any more repositories today. Please try again tomorrow!');
+      return;
+    }
+
     if (!validateUrl(urlToAnalyze)) {
       setStatus('error');
       setErrorMsg('Please enter a valid public GitHub repository URL (e.g., https://github.com/expressjs/express)');
@@ -264,11 +272,13 @@ export default function LandingPage() {
       }
     }, 2000);
 
+    const activeClientId = clientId || localStorage.getItem('repogpt_client_id') || 'guest-global';
+
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToAnalyze, clientId })
+        body: JSON.stringify({ url: urlToAnalyze, clientId: activeClientId })
       });
 
       const data = await response.json();
@@ -279,7 +289,7 @@ export default function LandingPage() {
       }
 
       // Update scan count from server
-      const countRes = await fetch(`/api/analyze?clientId=${clientId}`);
+      const countRes = await fetch(`/api/analyze?clientId=${activeClientId}`);
       if (countRes.ok) {
         const countData = await countRes.json();
         setScansToday(countData.count || 0);
