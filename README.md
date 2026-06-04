@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="public/Logo.png" alt="RepoGPT Logo" width="30" style="vertical-align: middle; margin-right: 8px; border-radius: 6px;"/>RepoGPT
+  <img src="public/Logo.png" alt="RepoGPT Logo" width="30" style="vertical-align: middle; margin-right: 8px; border-radius: 6px;"/>&nbsp;RepoGPT
 </h1>
 
 <p align="center">
