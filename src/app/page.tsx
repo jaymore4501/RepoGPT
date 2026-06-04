@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Code, 
-  Network, 
-  FileText, 
-  ArrowRight, 
-  Server, 
-  Terminal, 
+import {
+  Code,
+  Network,
+  FileText,
+  ArrowRight,
+  Server,
+  Terminal,
   Info,
   Star,
   BookOpen,
@@ -300,10 +300,10 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
             <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
             <a href="#ollama" className="hover:text-cyan-400 transition-colors">Ollama Guide</a>
-            <a 
-              href="https://github.com/jaymore4501/RepoGPT" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://github.com/jaymore4501/RepoGPT"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-slate-200 transition-colors"
             >
               <GithubIcon className="w-4 h-4" /> GitHub
@@ -315,7 +315,7 @@ export default function LandingPage() {
       {/* Hero and Core Form Section */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative z-10">
         <div className="max-w-4xl w-full text-center space-y-8">
-          
+
           {/* Neon Banner */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-950/20 text-xs text-violet-300 font-medium tracking-wide animate-pulse">
             <Server className="w-3.5 h-3.5" /> Platform Active • Zero Cloud Limits
@@ -380,12 +380,11 @@ export default function LandingPage() {
               </div>
 
               {/* Collapsible Repository Explorer Panel */}
-              <div 
-                className={`transition-all duration-500 ease-in-out overflow-hidden origin-top ${
-                  showExploreRepos 
-                    ? 'max-h-[1000px] opacity-100 mt-6 scale-100 visible' 
-                    : 'max-h-0 opacity-0 scale-95 invisible'
-                }`}
+              <div
+                className={`transition-all duration-500 ease-in-out overflow-hidden origin-top ${showExploreRepos
+                  ? 'max-h-[1000px] opacity-100 mt-6 scale-100 visible'
+                  : 'max-h-0 opacity-0 scale-95 invisible'
+                  }`}
               >
                 <div className="space-y-4 pt-6 border-t border-slate-900/60 text-left">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -408,11 +407,10 @@ export default function LandingPage() {
                         <button
                           key={category.id}
                           onClick={() => setActiveCategory(category.id)}
-                          className={`px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap border flex items-center gap-1.5 transition-all cursor-pointer ${
-                            isActive
-                              ? 'bg-violet-950/40 border-violet-500/35 text-violet-300 shadow-[0_0_12px_rgba(139,92,246,0.12)]'
-                              : 'bg-slate-900/30 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                          }`}
+                          className={`px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap border flex items-center gap-1.5 transition-all cursor-pointer ${isActive
+                            ? 'bg-violet-950/40 border-violet-500/35 text-violet-300 shadow-[0_0_12px_rgba(139,92,246,0.12)]'
+                            : 'bg-slate-900/30 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                            }`}
                         >
                           <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-violet-400' : 'text-slate-500'}`} />
                           {category.name}
@@ -426,12 +424,12 @@ export default function LandingPage() {
                     <div className="relative z-30 pt-1 pb-2 flex items-center justify-between">
                       <div className="relative">
                         {isGoalDropdownOpen && (
-                          <div 
-                            className="fixed inset-0 z-40 bg-transparent" 
+                          <div
+                            className="fixed inset-0 z-40 bg-transparent"
                             onClick={() => setIsGoalDropdownOpen(false)}
                           />
                         )}
-                        
+
                         <button
                           onClick={() => setIsGoalDropdownOpen(!isGoalDropdownOpen)}
                           className="px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-slate-100 transition-all flex items-center gap-2 cursor-pointer relative z-50 shadow-md active:scale-98"
@@ -443,12 +441,11 @@ export default function LandingPage() {
                           <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-300 ${isGoalDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
 
-                        <div 
-                          className={`absolute left-0 mt-2 w-72 rounded-xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl p-1.5 transition-all duration-305 origin-top-left z-50 ${
-                            isGoalDropdownOpen 
-                              ? 'opacity-100 scale-100 translate-y-0 visible' 
-                              : 'opacity-0 scale-95 -translate-y-2 invisible'
-                          }`}
+                        <div
+                          className={`absolute left-0 mt-2 w-72 rounded-xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl p-1.5 transition-all duration-305 origin-top-left z-50 ${isGoalDropdownOpen
+                            ? 'opacity-100 scale-100 translate-y-0 visible'
+                            : 'opacity-0 scale-95 -translate-y-2 invisible'
+                            }`}
                         >
                           {GOALS.map((goal) => {
                             const isGoalActive = selectedGoal === goal.id;
@@ -459,11 +456,10 @@ export default function LandingPage() {
                                   setSelectedGoal(goal.id);
                                   setIsGoalDropdownOpen(false);
                                 }}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                                  isGoalActive 
-                                    ? 'bg-violet-950/40 border border-violet-500/25 text-violet-300' 
-                                    : 'text-slate-400 hover:bg-slate-900/40 hover:text-slate-200 border border-transparent'
-                                }`}
+                                className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${isGoalActive
+                                  ? 'bg-violet-950/40 border border-violet-500/25 text-violet-300'
+                                  : 'text-slate-400 hover:bg-slate-900/40 hover:text-slate-200 border border-transparent'
+                                  }`}
                               >
                                 <span>{goal.name}</span>
                                 {isGoalActive && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />}
@@ -483,7 +479,7 @@ export default function LandingPage() {
                         if (activeCategory !== 'goals' || selectedGoal === 'all') return true;
                         return (repo as any).goalId === selectedGoal;
                       }) || [];
-                      
+
                       return filteredRepos.map((repo, idx) => (
                         <div
                           key={repo.name}
@@ -526,10 +522,10 @@ export default function LandingPage() {
           ) : (
             /* Loader Timeline */
             <div className="max-w-2xl mx-auto w-full">
-              <Stepper 
-                steps={ANALYSIS_STEPS} 
-                currentStep={currentStep} 
-                status={status} 
+              <Stepper
+                steps={ANALYSIS_STEPS}
+                currentStep={currentStep}
+                status={status}
                 errorMessage={errorMsg}
               />
             </div>
@@ -587,7 +583,7 @@ export default function LandingPage() {
       </section>
 
       {/* Ollama Guide Section */}
-      <section id="ollama" className="max-w-4xl mx-auto w-full px-6 py-16 border-t border-slate-900 relative z-20">
+      <section id="ollama" className="max-w-5xl mx-auto w-full px-6 py-16 border-t border-slate-900 relative z-20">
         <div className="glass-panel rounded-2xl p-8 border border-violet-500/15 flex flex-col md:flex-row gap-8 items-start shadow-xl">
           <div className="w-16 h-16 rounded-2xl bg-indigo-950/50 border border-indigo-500/30 flex items-center justify-center shrink-0 shadow-lg mt-1">
             <Terminal className="w-8 h-8 text-indigo-400" />
@@ -602,26 +598,21 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-left">
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-                <span className="font-bold text-slate-200">🔒 100% Local and Secure</span>
-                <p className="text-slate-400 leading-relaxed">
-                  Your code never leaves your machine. Ollama runs the models offline, ensuring zero external data leakage.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-                <span className="font-bold text-slate-200">🚀 Zero Cost & API Limits</span>
-                <p className="text-slate-400 leading-relaxed">
-                  Run complex code queries without paying for API keys, subscription tokens, or cloud service limits.
-                </p>
-              </div>
-            </div>
-
             <div className="bg-slate-950 border border-slate-800 rounded-lg p-5 font-mono text-xs text-slate-300 space-y-4 text-left">
-              <div className="flex items-center gap-2 text-indigo-400 border-b border-slate-800/80 pb-2 font-sans font-semibold">
-                <Info className="w-4 h-4" /> Setup Instructions
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800/80 pb-3 mb-2">
+                <div className="flex items-center gap-2 text-indigo-400 font-sans font-semibold">
+                  <Info className="w-4 h-4" /> Setup Instructions
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px] font-sans">
+                  <span className="px-2.5 py-1 rounded-md bg-emerald-950/30 border border-emerald-800/30 text-emerald-400 font-semibold flex items-center gap-1">
+                    🔒 100% Local and Secure
+                  </span>
+                  <span className="px-2.5 py-1 rounded-md bg-cyan-950/30 border border-cyan-800/30 text-cyan-400 font-semibold flex items-center gap-1">
+                    🚀 Zero Cost & API Limits
+                  </span>
+                </div>
               </div>
-              
+
               <div className="space-y-1.5">
                 <div className="font-semibold text-slate-200">1. Download & Install Ollama</div>
                 <div className="text-slate-400 pl-4">
