@@ -152,7 +152,7 @@ To interact with the codebase using conversational AI:
 
 ## 📦 Production Compilation & Deployment
 
-To deploy RepoGPT or compile it for maximum performance:
+For a detailed walkthrough on deploying RepoGPT to cloud platforms (DigitalOcean App Platform, Render, Railway) or running it on a self-hosted Ubuntu VPS, please refer to the dedicated [Deployment Guide](DEPLOYMENT.md).
 
 ### Local Production Server
 Build the optimized production bundle and start the server:
@@ -165,19 +165,8 @@ npm run start
 ```
 The server will start running on port `3000`.
 
-### Vercel / Cloud Deployment
-Since RepoGPT is a standard Next.js application, it can be deployed directly to Vercel or other cloud container providers (like Render, AWS, or Railway):
-1.  Push your code repository to GitHub.
-2.  Import the repository into Vercel.
-3.  Vercel will automatically detect Next.js settings and build/deploy the application.
-4.  *Note:* Because cloning and parsing happen on the server, ensure the hosting environment has access to a `git` binary and sufficient disk space to hold temporary cloned repositories under `temp_repos/`.
-
 ---
 
 ## 📄 License
 
-**Proprietary & Closed-Source Software**
-
-This project is licensed under a strict proprietary license. Copyright (c) 2026 RepoGPT. All rights reserved. 
-
-No portion of this software may be copied, redistributed, publicly hosted, modified, or sublicensed without express prior written permission from the copyright owner. Unauthorized reproduction or copying violates national and international copyright law. See the [LICENSE](LICENSE) file for complete details.
+This project is licensed under the [MIT License](LICENSE).
