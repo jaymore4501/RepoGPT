@@ -114,7 +114,7 @@ Open your terminal (Command Prompt, PowerShell, or Terminal on macOS/Linux) and 
 
 ```bash
 # 1. Clone the project code
-git clone https://github.com/your-username/RepoGPT.git
+git clone https://github.com/jaymore4501/RepoGPT.git
 
 # 2. Navigate into the cloned project folder
 cd RepoGPT
