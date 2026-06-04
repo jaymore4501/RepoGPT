@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="public/Logo.png" alt="RepoGPT Logo" width="30" style="vertical-align: middle; margin-right: 8px; border-radius: 6px;"/>&nbsp;RepoGPT
+  <img src="public/Readme Logo.png" alt="RepoGPT Logo" width="30" style="vertical-align: middle; margin-right: 8px; border-radius: 6px;"/>&nbsp;RepoGPT
 </h1>
 
 <p align="center">
@@ -45,7 +45,7 @@ It compiles code hierarchies in real time and interfaces directly with local LLM
 
 RepoGPT uses a highly optimized 5-stage ingestion pipeline to fetch and process repositories:
 
-![RepoGPT System Architecture](./public/system_architecture.png)
+![RepoGPT System Architecture](./public/RepoGPT%20Architecture.png)
 
 <details>
 <summary>🔍 View Ingestion Pipeline Details</summary>
