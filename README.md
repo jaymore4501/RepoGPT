@@ -21,8 +21,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/context-aware-chat-8B5CF6?style=flat-square" />
-  <img src="https://img.shields.io/badge/RAG-enabled-EC4899?style=flat-square" />
   <img src="https://img.shields.io/badge/docs-generation-059669?style=flat-square" />
   <img src="https://img.shields.io/badge/code-intelligence-purple?style=flat-square" />
   <img src="https://img.shields.io/badge/architecture-mapping-orange?style=flat-square" />
