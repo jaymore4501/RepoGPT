@@ -32,9 +32,22 @@ import {
 import { toPng, toSvg, toJpeg } from 'html-to-image';
 import { VisualRelation } from '@/lib/storage';
 
+import { FileInspector } from '@/components/FileInspector';
+
 // 1. Custom Node Types for Custom Styling
 const CustomNode = ({ data }: { data: any }) => {
   const getStyle = () => {
+    if (data.isHeatmap) {
+      if (data.type === 'dir' || data.type === 'service' || data.type === 'db' || data.type === 'module') {
+        return 'border-slate-800 bg-slate-900/50 text-slate-500 opacity-50'; // Dim non-files in heatmap
+      }
+      const score = data.complexityScore || 0;
+      if (score >= 50) return 'border-rose-500/80 bg-rose-950 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)]'; // Critical
+      if (score >= 30) return 'border-orange-500/80 bg-orange-950 text-orange-300 shadow-[0_0_10px_rgba(249,115,22,0.2)]'; // High
+      if (score >= 15) return 'border-amber-500/60 bg-amber-950 text-amber-300'; // Moderate
+      return 'border-emerald-500/40 bg-emerald-950 text-emerald-300'; // Low
+    }
+    
     switch (data.type) {
       case 'dir':
         return 'border-indigo-500/40 bg-indigo-950/95 text-indigo-300';
@@ -96,9 +109,10 @@ export default function VisualizePage() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState<'all' | 'dependencies' | 'hierarchy' | 'flows'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'dependencies' | 'hierarchy' | 'flows' | 'heatmap'>('all');
   const [selectedNodeData, setSelectedNodeData] = useState<any>(null);
   const [isInteractive, setIsInteractive] = useState(true);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
 
   // Layout calculations in concentric rings
   const calculateLayout = useCallback((data: VisualRelation, mode: typeof filterMode) => {
@@ -392,7 +406,21 @@ export default function VisualizePage() {
       };
     });
 
-    setNodes(calculatedNodes);
+    const finalNodes = calculatedNodes.map(cn => {
+      const origNode = rawNodes.find(n => n.id === cn.id);
+      return {
+        ...cn,
+        data: {
+          ...cn.data,
+          isHeatmap: mode === 'heatmap',
+          complexityScore: origNode?.complexityScore,
+          maintainabilityScore: origNode?.maintainabilityScore,
+          smells: origNode?.smells,
+        }
+      };
+    });
+
+    setNodes(finalNodes);
     setEdges(calculatedEdges);
   }, [setNodes, setEdges]);
 
@@ -427,13 +455,18 @@ export default function VisualizePage() {
   const handleFilterChange = (mode: typeof filterMode) => {
     setFilterMode(mode);
     if (relations) {
-      calculateLayout(relations, mode);
+      calculateLayout(relations, mode === 'heatmap' ? 'all' : mode);
     }
   };
 
   // Node Clicking Inspection
   const onNodeClick = (_: any, node: Node) => {
-    setSelectedNodeData(node.data);
+    if (filterMode === 'heatmap' && node.data?.type === 'file') {
+      setSelectedNodeData(node.data);
+      setInspectorOpen(true);
+    } else {
+      setSelectedNodeData(node.data);
+    }
   };
 
   // Node search highlights
@@ -853,6 +886,26 @@ export default function VisualizePage() {
       <div className="absolute bottom-6 left-6 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-950/80 text-[10px] text-slate-500 font-semibold z-20">
         <HelpCircle className="w-3.5 h-3.5" /> Hold Shift to box-select • Double click/Scroll to zoom • Click nodes to inspect
       </div>
+
+      <FileInspector 
+        isOpen={inspectorOpen} 
+        onClose={() => setInspectorOpen(false)} 
+        file={selectedNodeData ? {
+          name: selectedNodeData.label,
+          path: selectedNodeData.id,
+          language: 'mixed',
+          size: selectedNodeData.size,
+          imports: [],
+          exports: [],
+          functions: [],
+          classes: [],
+          dependencies: [],
+          complexityScore: selectedNodeData.complexityScore,
+          maintainabilityScore: selectedNodeData.maintainabilityScore,
+          smells: selectedNodeData.smells
+        } : null} 
+        repoId={repoId} 
+      />
 
     </div>
   );

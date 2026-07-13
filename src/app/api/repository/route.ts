@@ -7,7 +7,8 @@ export async function GET(req: NextRequest) {
     const repoId = searchParams.get('repoId');
 
     if (!repoId) {
-      return NextResponse.json({ error: 'repoId is required' }, { status: 400 });
+      const allRepos = Storage.getRepositories();
+      return NextResponse.json(allRepos);
     }
 
     const metadata = Storage.getRepository(repoId);

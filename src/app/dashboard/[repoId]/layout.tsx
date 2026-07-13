@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LayoutDashboard, MessageSquare, Network, FileText, ArrowLeft, ShieldCheck, Terminal, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Network, FileText, ArrowLeft, ShieldCheck, Terminal, HelpCircle, Activity } from 'lucide-react';
 
 interface SidebarItem {
   name: string;
@@ -22,6 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const menuItems: SidebarItem[] = [
     { name: 'Dashboard Overview', href: `/dashboard/${repoId}`, icon: LayoutDashboard },
+    { name: 'Code Quality', href: `/dashboard/${repoId}/quality`, icon: Activity },
     { name: 'Semantic Code Chat', href: `/dashboard/${repoId}/chat`, icon: MessageSquare },
     { name: 'Architecture Graph', href: `/dashboard/${repoId}/visualize`, icon: Network },
     { name: 'Setup & Installation', href: `/dashboard/${repoId}/docs?type=setup`, icon: Terminal },

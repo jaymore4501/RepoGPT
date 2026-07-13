@@ -346,6 +346,7 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
             <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
+            <a href="/compare" className="hover:text-cyan-400 transition-colors">Compare Repos</a>
             <a href="#ollama" className="hover:text-cyan-400 transition-colors">Ollama Guide</a>
             <a
               href="https://github.com/jaymore4501/RepoGPT"

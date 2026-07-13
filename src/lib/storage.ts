@@ -15,6 +15,20 @@ export interface RepositoryMetadata {
   apiDocs: string;
   onboardingGuide: string;
   structure: any; // Tree structure
+  gitStats?: {
+    contributors: number;
+    commits: number;
+    branches: number;
+    currentBranch: string;
+    lastCommitDate: string;
+    lastCommitAuthor: string;
+    error?: boolean;
+  };
+  projectStats?: {
+    totalLoc: number;
+    totalBlank: number;
+    totalComments: number;
+  };
 }
 
 export interface CodeChunk {
@@ -27,20 +41,51 @@ export interface CodeChunk {
   name: string;
 }
 
+export interface CodeSmell {
+  id: string;
+  type: 'Long Function' | 'Large Class' | 'Deep Nesting' | 'Large File' | 'Unused Import' | 'Magic Number' | 'Duplicate Logic' | 'Excessive Parameters' | 'Circular Dependency' | 'High Coupling';
+  location: string;
+  description: string;
+  recommendation: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
 export interface ParsedFile {
   path: string;
   name: string;
   language: string;
   size: number;
+  loc?: number;
+  blankLines?: number;
+  commentLines?: number;
   imports: string[];
   exports: string[];
   functions: string[];
   classes: string[];
   dependencies: string[];
+  // Quality Metrics
+  complexityScore?: number;
+  maintainabilityScore?: number;
+  smells?: CodeSmell[];
+  duplicateLines?: number;
+  duplicateBlocks?: number;
+  securityIssues?: {
+    critical: number;
+    high: number;
+    medium: number;
+  };
 }
 
 export interface VisualRelation {
-  nodes: Array<{ id: string; label: string; type: 'file' | 'dir' | 'service' | 'module' | 'db'; size: number }>;
+  nodes: Array<{ 
+    id: string; 
+    label: string; 
+    type: 'file' | 'dir' | 'service' | 'module' | 'db'; 
+    size: number;
+    complexityScore?: number;
+    maintainabilityScore?: number;
+    smells?: CodeSmell[];
+  }>;
   links: Array<{ source: string; target: string; type: string }>;
 }
 
@@ -262,10 +307,15 @@ export const Storage = {
     }
   },
 
-  // Record a scan
+  // Record a scan and prune old ones
   recordScan(clientId: string, repoId: string) {
     ensureDirs();
-    const scans = this.getScans();
+    let scans = this.getScans();
+    
+    // Reset/Prune scans older than 24 hours to prevent file bloat and perfectly enforce the 24hr rolling window
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    scans = scans.filter(s => new Date(s.timestamp).getTime() > oneDayAgo);
+    
     scans.push({
       clientId,
       repoId,

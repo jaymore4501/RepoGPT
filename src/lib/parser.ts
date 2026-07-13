@@ -1,6 +1,78 @@
 import fs from 'fs';
 import path from 'path';
-import { ParsedFile, RepositoryIndex, RepositoryMetadata, VisualRelation, CodeChunk } from './storage';
+import { ParsedFile, RepositoryIndex, RepositoryMetadata, VisualRelation, CodeChunk, CodeSmell } from './storage';
+
+// Quality analysis helper functions
+function calculateQualityMetrics(content: string, linesCount: number, functions: string[], classes: string[], imports: string[]): { smells: CodeSmell[], complexityScore: number, maintainabilityScore: number } {
+  const smells: CodeSmell[] = [];
+  let complexity = 1;
+  let nestingDepth = 0;
+  
+  const lines = content.split('\n');
+  
+  // Calculate pseudo cyclomatic complexity and nesting
+  let currentNesting = 0;
+  let maxNesting = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.match(/\b(if|for|while|switch|case|catch|&&|\|\|)\b/)) {
+      complexity++;
+    }
+    if (line.includes('{')) currentNesting++;
+    if (line.includes('}')) currentNesting--;
+    
+    if (currentNesting > maxNesting) maxNesting = currentNesting;
+  }
+  nestingDepth = maxNesting;
+
+  if (nestingDepth > 4) {
+    smells.push({
+      id: `smell-${Date.now()}-${Math.random()}`,
+      type: 'Deep Nesting',
+      location: 'File level',
+      description: `Nesting depth is ${nestingDepth}, which makes the code hard to follow.`,
+      recommendation: 'Use early returns or extract nested logic into separate functions.',
+      severity: nestingDepth > 6 ? 'high' : 'medium'
+    });
+  }
+
+  if (linesCount > 500) {
+    smells.push({
+      id: `smell-${Date.now()}-${Math.random()}`,
+      type: 'Large File',
+      location: 'File level',
+      description: `File has ${linesCount} lines, exceeding the recommended 500 lines limit.`,
+      recommendation: 'Split the file into smaller, more focused modules.',
+      severity: linesCount > 1000 ? 'critical' : 'high'
+    });
+  }
+
+  // Calculate scores
+  // Base complexity 1 to 100
+  let complexityScore = Math.min(100, Math.floor((complexity * 1.5) + (nestingDepth * 5) + (functions.length * 2) + (classes.length * 5)));
+  
+  // Maintainability Index approximation (100 is best, 0 is worst)
+  let maintainabilityScore = Math.max(0, 100 - (complexityScore * 0.5) - (smells.length * 5) - (linesCount / 100));
+  
+  return { smells, complexityScore, maintainabilityScore: Math.floor(maintainabilityScore) };
+}
+
+function calculateSecurityIssues(content: string, language: string): { critical: number; high: number; medium: number } {
+  let critical = 0;
+  let high = 0;
+  let medium = 0;
+
+  // Simple heuristic security scanner
+  if (/(password|secret|key|token)\s*=\s*['"][a-zA-Z0-9_-]{10,}['"]/i.test(content)) critical++;
+  if (/AWS_ACCESS_KEY|AKIA[0-9A-Z]{16}/.test(content)) critical++;
+  if (/eval\(.*\)/.test(content) && language.includes('Script')) high++;
+  if (/exec\(|spawn\(|child_process/.test(content) && language.includes('Script')) medium++;
+  if (/select\s+\*\s+from.*where.*=/i.test(content) && !/where.*=\s*\?/i.test(content)) high++; // basic SQLi detection
+  if (/MD5|SHA1/.test(content)) medium++;
+
+  return { critical, high, medium };
+}
 
 // File extensions and matching languages
 const LANGUAGE_MAP: Record<string, string> = {
@@ -47,21 +119,7 @@ const EXCLUDE_DIRS = new Set([
   'obj',
   '__pycache__',
   'tmp',
-  'temp',
-  'docs',
-  'tests',
-  'test',
-  'spec',
-  'specs',
-  'examples',
-  'example',
-  'website',
-  'site',
-  'demo',
-  'demos',
-  'benchmarks',
-  'benchmark',
-  '.github'
+  'temp'
 ]);
 
 const EXCLUDE_FILES = new Set([
@@ -130,6 +188,20 @@ function parseCodeFile(filePath: string, relativePath: string, content: string):
   const ext = path.extname(filePath).toLowerCase();
   const language = LANGUAGE_MAP[ext] || 'Text';
   const size = Buffer.byteLength(content, 'utf8');
+  
+  const lines = content.split('\n');
+  const loc = lines.length;
+  let blankLines = 0;
+  let commentLines = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed === '') {
+      blankLines++;
+    } else if (trimmed.startsWith('//') || trimmed.startsWith('#') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('<!--')) {
+      commentLines++;
+    }
+  }
 
   const imports: string[] = [];
   const exports: string[] = [];
@@ -283,16 +355,39 @@ function parseCodeFile(filePath: string, relativePath: string, content: string):
     }
   }
 
+  const uniqueImports = Array.from(new Set(imports));
+  const uniqueExports = Array.from(new Set(exports));
+  const uniqueFunctions = Array.from(new Set(functions));
+  const uniqueClasses = Array.from(new Set(classes));
+  const uniqueDependencies = Array.from(new Set(dependencies));
+
+  const qualityMetrics = calculateQualityMetrics(
+    content,
+    content.split('\n').length,
+    uniqueFunctions,
+    uniqueClasses,
+    uniqueImports
+  );
+
+  const securityIssues = calculateSecurityIssues(content, language);
+
   return {
     path: relativePath.replace(/\\/g, '/'),
     name: path.basename(filePath),
     language,
     size,
-    imports: Array.from(new Set(imports)),
-    exports: Array.from(new Set(exports)),
-    functions: Array.from(new Set(functions)),
-    classes: Array.from(new Set(classes)),
-    dependencies: Array.from(new Set(dependencies))
+    loc,
+    blankLines,
+    commentLines,
+    imports: uniqueImports,
+    exports: uniqueExports,
+    functions: uniqueFunctions,
+    classes: uniqueClasses,
+    dependencies: uniqueDependencies,
+    complexityScore: qualityMetrics.complexityScore,
+    maintainabilityScore: qualityMetrics.maintainabilityScore,
+    smells: qualityMetrics.smells,
+    securityIssues
   };
 }
 
@@ -362,16 +457,16 @@ function generateRelationships(files: ParsedFile[]): VisualRelation {
   const nodeSet = new Set<string>();
 
   // Helper to add nodes
-  function addNode(id: string, label: string, type: 'file' | 'dir' | 'service' | 'module' | 'db', size: number) {
+  function addNode(id: string, label: string, type: 'file' | 'dir' | 'service' | 'module' | 'db', size: number, complexityScore?: number, maintainabilityScore?: number, smells?: CodeSmell[]) {
     if (!nodeSet.has(id)) {
       nodeSet.add(id);
-      nodes.push({ id, label, type, size });
+      nodes.push({ id, label, type, size, complexityScore, maintainabilityScore, smells });
     }
   }
 
   // 1. Add all files as nodes
   for (const file of files) {
-    addNode(file.path, file.name, 'file', file.size);
+    addNode(file.path, file.name, 'file', file.size, file.complexityScore, file.maintainabilityScore, file.smells);
     // Also build parent directory structures
     const parts = file.path.split('/');
     if (parts.length > 1) {
@@ -655,25 +750,23 @@ export async function parseRepository(rootDir: string, repoId: string, repoUrl: 
     return a.size - b.size;
   });
 
-  // Limit parsing list to maximum 300 files
-  const filesToParse = allFiles.slice(0, 300);
+  // Parse all files for accurate project stats, but limit RAG chunking to avoid memory bloat
+  for (let i = 0; i < allFiles.length; i++) {
+    const file = allFiles[i];
+    try {
+      const content = await fs.promises.readFile(file.fullPath, 'utf-8');
+      const parsed = parseCodeFile(file.fullPath, file.relPath, content);
+      parsedFiles.push(parsed);
 
-  // Parse capped files concurrently in parallel async I/O tasks
-  await Promise.all(
-    filesToParse.map(async (file) => {
-      try {
-        const content = await fs.promises.readFile(file.fullPath, 'utf-8');
-        const parsed = parseCodeFile(file.fullPath, file.relPath, content);
-        parsedFiles.push(parsed);
-
-        // Chunk the code
+      // Only generate search chunks for the top 300 prioritized files
+      if (i < 300) {
         const fileChunks = chunkCode(file.relPath, content);
         chunks.push(...fileChunks);
-      } catch (e) {
-        console.error(`Failed to parse file ${file.relPath}:`, e);
       }
-    })
-  );
+    } catch (e) {
+      console.error(`Failed to parse file ${file.relPath}:`, e);
+    }
+  }
 
   // Compute language percentages
   const languagesPct: Record<string, number> = {};
@@ -873,6 +966,51 @@ ${structure.filter(n => n.type === 'dir').slice(0, 5).map(dir => {
 - Data flow: Imports and dependencies flow towards central coordination routes and schema controllers.
 - Dependencies: Refer to the technology stack charts on the dashboard to review external API and system level packages utilized.`;
 
+  // Basic Code Duplication Detection (Cross-file)
+  const lineCounts = new Map<string, number>();
+  const blockHashes = new Map<string, string[]>();
+  const crypto = require('crypto');
+
+  for (const f of parsedFiles) {
+    f.duplicateLines = 0;
+    f.duplicateBlocks = 0;
+    
+    // Naive block hashing
+    try {
+      const fullPath = allFiles.find(af => af.relPath === f.path)?.fullPath;
+      if (fullPath) {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        const lines = content.split('\n').filter(l => l.trim().length > 10);
+        
+        let dupes = 0;
+        for (let i = 0; i < lines.length - 5; i += 5) {
+          const block = lines.slice(i, i + 5).join('\n');
+          const hash = crypto.createHash('md5').update(block).digest('hex');
+          
+          if (blockHashes.has(hash)) {
+            f.duplicateBlocks++;
+            dupes += 5;
+            blockHashes.get(hash)?.push(f.path);
+          } else {
+            blockHashes.set(hash, [f.path]);
+          }
+        }
+        f.duplicateLines = dupes;
+      }
+    } catch(e) {}
+  }
+  
+  // Aggregate Project Stats
+  let totalLoc = 0;
+  let totalBlank = 0;
+  let totalComments = 0;
+  
+  for (const f of parsedFiles) {
+    if (f.loc) totalLoc += f.loc;
+    if (f.blankLines) totalBlank += f.blankLines;
+    if (f.commentLines) totalComments += f.commentLines;
+  }
+
   const metadata: RepositoryMetadata = {
     id: repoId,
     name,
@@ -886,8 +1024,99 @@ ${structure.filter(n => n.type === 'dir').slice(0, 5).map(dir => {
     setupInstructions,
     apiDocs,
     onboardingGuide,
-    structure
+    structure,
+    projectStats: {
+      totalLoc,
+      totalBlank,
+      totalComments
+    }
   };
+
+  // Git Repository Analytics
+  metadata.gitStats = { error: true, contributors: 0, commits: 0, branches: 0, currentBranch: '', lastCommitDate: '', lastCommitAuthor: '' };
+  
+  if (repoUrl.includes('github.com')) {
+    try {
+      const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+      if (match) {
+        const owner = match[1];
+        const repo = match[2].replace('.git', '');
+        
+        // Fetch from GitHub API
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+        if (response.ok) {
+          const ghData = await response.json();
+          
+          metadata.gitStats = {
+            contributors: ghData.network_count || 1, // Fallback heuristic
+            commits: ghData.size || 0, // Fallback
+            branches: ghData.network_count || 1, 
+            currentBranch: ghData.default_branch || 'main',
+            lastCommitDate: ghData.updated_at,
+            lastCommitAuthor: ghData.owner?.login || 'Unknown'
+          };
+          
+          // Try to get contributors count accurately from API if possible
+          try {
+             const contribsRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=1&anon=true`);
+             const linkHeader = contribsRes.headers.get('link');
+             if (linkHeader) {
+               const lastPageMatch = linkHeader.match(/page=(\d+)>; rel="last"/);
+               if (lastPageMatch) {
+                 metadata.gitStats.contributors = parseInt(lastPageMatch[1]);
+               }
+             }
+          } catch(e) {}
+          
+          // Try to get accurate commits count
+          try {
+             const commitsRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`);
+             const linkHeader = commitsRes.headers.get('link');
+             if (linkHeader) {
+               const lastPageMatch = linkHeader.match(/page=(\d+)>; rel="last"/);
+               if (lastPageMatch) {
+                 metadata.gitStats.commits = parseInt(lastPageMatch[1]);
+               }
+             }
+          } catch(e) {}
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch GitHub API stats:', e);
+    }
+  }
+
+  // Fallback to Local Git if GitHub API failed or not a github repo
+  if (metadata.gitStats.error && fs.existsSync(path.join(rootDir, '.git'))) {
+    try {
+      const { execSync } = require('child_process');
+      const getCmdLines = (cmd: string) => {
+        try {
+          return execSync(cmd, { cwd: rootDir, encoding: 'utf-8' }).trim().split('\n').filter((l: string) => l.trim().length > 0).length;
+        } catch(e) { return 0; }
+      };
+      const getCmd = (cmd: string) => execSync(cmd, { cwd: rootDir, encoding: 'utf-8' }).trim();
+      
+      const commitCount = parseInt(getCmd('git rev-list --count --all')) || 0;
+      const branchesStr = execSync('git branch -a', { cwd: rootDir, encoding: 'utf-8' }).trim();
+      const branches = branchesStr.split('\n').filter((l: string) => l.trim().length > 0 && !l.includes('->')).length || 1;
+      const currentBranch = getCmd('git rev-parse --abbrev-ref HEAD');
+      const lastCommitDate = getCmd('git log -1 --format=%cI');
+      const lastCommitAuthor = getCmd('git log -1 --format="%an"');
+      const contributors = getCmdLines('git shortlog -sn --all') || 1;
+
+      metadata.gitStats = {
+        contributors,
+        commits: commitCount,
+        branches,
+        currentBranch,
+        lastCommitDate,
+        lastCommitAuthor
+      };
+    } catch (e) {
+      console.error('Failed to extract git stats:', e);
+    }
+  }
 
   const index: RepositoryIndex = {
     id: repoId,
