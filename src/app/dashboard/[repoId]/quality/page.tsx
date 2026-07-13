@@ -534,7 +534,7 @@ export default function QualityDashboard() {
                     stroke="none"
                   >
                   </Pie>
-                  <RechartsTooltip formatter={(value: number) => [`${value.toFixed(1)}%`, 'Percentage']} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#cbd5e1' }} itemStyle={{ color: '#e2e8f0' }} />
+                  <RechartsTooltip formatter={(value: any) => [`${Number(value).toFixed(1)}%`, 'Percentage']} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#cbd5e1' }} itemStyle={{ color: '#e2e8f0' }} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="text-center -mt-16">
@@ -644,7 +644,7 @@ export default function QualityDashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <RechartsTooltip formatter={(value: number) => [formatSize(value), 'Size']} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#cbd5e1' }} />
+                <RechartsTooltip formatter={(value: any) => [formatSize(Number(value)), 'Size']} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#cbd5e1' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>

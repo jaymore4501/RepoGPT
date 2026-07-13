@@ -283,7 +283,7 @@ You can try the quick queries below or type your own question.`,
                 }`}>
                   <div 
                     className="markdown-body"
-                    dangerouslySetInnerHTML={{ __html: marked.parse(msg.content || '▋') }}
+                    dangerouslySetInnerHTML={{ __html: marked.parse(msg.content || '▋') as string }}
                   />
                 </div>
 

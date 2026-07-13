@@ -153,7 +153,7 @@ function DocsContent() {
               
               <div 
                 className="markdown-body"
-                dangerouslySetInnerHTML={{ __html: marked.parse(docContent) }}
+                dangerouslySetInnerHTML={{ __html: marked.parse(docContent) as string }}
               />
             </div>
           )}
