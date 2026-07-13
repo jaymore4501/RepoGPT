@@ -13,6 +13,25 @@
   <a href="#-getting-started-beginner-guide">Getting Started</a> •
   <a href="#-production-compilation--deployment">Deployment</a> •
   <a href="#-license">License</a>
+  
+<p align="center">
+  <img src="https://img.shields.io/badge/Repository%20Intelligence-111827?style=flat-square&logo=github&logoColor=white" />
+  <img src="https://img.shields.io/badge/Local%20LLMs-Ollama-111827?style=flat-square" />
+  <img src="https://img.shields.io/badge/semantic-search-2563EB?style=flat-square" />
+  <img src="https://img.shields.io/badge/codebase-visualization-7C3AED?style=flat-square" />
+  <img src="https://img.shields.io/badge/source-analysis-DC2626?style=flat-square" />
+  <img src="https://img.shields.io/badge/dev-onboarding-16A34A?style=flat-square" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/docs-generation-059669?style=flat-square" />
+  <img src="https://img.shields.io/badge/code-intelligence-purple?style=flat-square" />
+  <img src="https://img.shields.io/badge/architecture-mapping-orange?style=flat-square" />
+  <img src="https://img.shields.io/badge/source-analysis-red?style=flat-square" />
+  <img src="https://img.shields.io/badge/rag-enabled-c2185b?style=flat-square" />
+  <img src="https://img.shields.io/badge/ast-powered-1976d2?style=flat-square" />
+  <img src="https://img.shields.io/badge/offline-capable-0277bd?style=flat-square" />
+</p>
 </p>
 
 ---
