@@ -6,6 +6,8 @@ RepoGPT is a production-grade developer SaaS platform designed to ingest, parse,
 
 The platform acts as a virtual "AI Senior Engineer," enabling developers to immediately onboard onto unfamiliar repositories, audit code quality, generate premium PDF reports, and explore visual software architectures in real-time.
 
+![RepoGPT Intelligence Features Map](./public/RepoGPT%20Intelligence%20Features%20Map.png)
+
 ---
 
 ## 1. Primary Objectives
